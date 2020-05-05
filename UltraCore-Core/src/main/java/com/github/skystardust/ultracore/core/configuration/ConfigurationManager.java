@@ -3,7 +3,10 @@ package com.github.skystardust.ultracore.core.configuration;
 import com.github.skystardust.ultracore.core.PluginInstance;
 import com.github.skystardust.ultracore.core.exceptions.ConfigurationException;
 import com.github.skystardust.ultracore.core.utils.FileUtils;
+import com.google.gson.Gson;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -18,12 +21,20 @@ public class ConfigurationManager {
     private Map<String, Object> configurationModels;
     private Map<String, Object> data;
     private Map.Entry<Class<?>, Object> classSetterInfo;
+    @Setter
+    @Getter
+    private Gson gson = FileUtils.GSON;
 
     public ConfigurationManager(PluginInstance ownPlugin) {
         this.ownPlugin = ownPlugin;
         this.configurationModels = new HashMap<>();
         this.data = new HashMap<>();
         PLUGIN_INSTANCE_CONFIGURATION_MANAGER_MAP.put(ownPlugin, this);
+    }
+
+    public ConfigurationManager(PluginInstance ownPlugin, Gson gson) {
+        this(ownPlugin);
+        this.gson = gson;
     }
 
     public ConfigurationManager registerConfiguration(String name, Supplier o) {
@@ -57,11 +68,11 @@ public class ConfigurationManager {
             File file = new File(ownPlugin.getDataFolder(), fileName + ".conf");
             if (!file.exists()) {
                 ownPlugin.getPluginLogger().info("正在创建配置文件 " + fileName + " 的模板.");
-                FileUtils.writeFileContent(file, FileUtils.GSON.toJson(result));
+                FileUtils.writeFileContent(file, gson.toJson(result));
                 ownPlugin.getPluginLogger().info("创建 " + fileName + " 的模板完成!");
             }
             ownPlugin.getPluginLogger().info("正在读取配置文件 " + fileName + " 的现有存档.");
-            data.put(fileName, FileUtils.GSON.fromJson(FileUtils.readFileContent(file), result.getClass()));
+            data.put(fileName, gson.fromJson(FileUtils.readFileContent(file), result.getClass()));
             ownPlugin.getPluginLogger().info("读取配置文件 " + fileName + " 已成功.");
         });
         ownPlugin.getPluginLogger().info("初始化 " + ownPlugin.getName() + " 已全部成功!");
