@@ -83,8 +83,8 @@ public class MainCommandSpec extends CommandSpec {
                                 retArgs = tabSpecExecutor.executeTab(commandSender,Arrays.stream(args).skip(finalI).toArray(String[]::new));
                             }
                             if(retArgs==null) {
-                                temp.removeIf(subCommandSpec -> !subCommandSpec.getAliases().contains(args[finalI - 1]));
-                                return temp.stream()
+                                parentCommandSpec.removeIf(subCommandSpec -> !subCommandSpec.getAliases().contains(args[finalI - 1]));
+                                return parentCommandSpec.stream()
                                         .flatMap(subCommandSpec -> subCommandSpec.getSubCommandSpecList().stream().flatMap(subCommandSpec1 -> subCommandSpec1.getAliases().stream()))
                                         .filter(s1 -> s1.contains(arg))
                                         .collect(Collectors.toList());
